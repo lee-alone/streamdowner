@@ -1,0 +1,1 @@
+pyinstaller --noupx -F main.py --distpath ./output --workpath ./build --noconsole
