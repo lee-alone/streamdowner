@@ -24,7 +24,7 @@ class DownloadThread(QThread):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("老李没事锉一个下载器——德育专用版")
+        self.setWindowTitle("老李没事锉一个下载器——九中内部使用版")
         self.setMinimumSize(800, 600)
         self.download_manager = DownloadManager()
         self.history_manager = HistoryManager()
@@ -182,6 +182,15 @@ class MainWindow(QMainWindow):
         format_group.setLayout(format_layout)
         layout.addWidget(format_group)
         
+        # 音频选项
+        audio_group = QGroupBox("音频选项")
+        audio_layout = QVBoxLayout()
+        self.include_audio_check = QCheckBox("下载视频时包含音频")
+        self.include_audio_check.setChecked(True)  # 默认勾选
+        audio_layout.addWidget(self.include_audio_check)
+        audio_group.setLayout(audio_layout)
+        layout.addWidget(audio_group)
+        
         # 字幕选项
         subtitle_group = QGroupBox("字幕选项")
         subtitle_layout = QVBoxLayout()
@@ -216,7 +225,8 @@ class MainWindow(QMainWindow):
             'download_type': self.download_type.currentText(),
             'quality': self.quality_combo.currentText(),
             'format': self.format_combo.currentText(),
-            'subtitle_enabled': self.subtitle_check.isChecked()
+            'subtitle_enabled': self.subtitle_check.isChecked(),
+            'include_audio': self.include_audio_check.isChecked()  # 添加新选项
         }
 
         # Add new row to tasks table

@@ -75,7 +75,12 @@ class DownloadManager(QObject):
         }
         
         quality = options.get('quality', '最佳质量')
-        format_str = quality_map.get(quality, 'bestvideo+bestaudio/best')
+        include_audio = options.get('include_audio', True)
+        
+        if include_audio:
+            format_str = quality_map.get(quality, 'bestvideo+bestaudio/best')
+        else:
+            format_str = quality_map.get(quality, 'bestvideo/best').replace('+bestaudio', '')
         
         if options.get('format') in ['mp4', 'mkv']:
             format_str += f'[ext={options["format"]}]'
