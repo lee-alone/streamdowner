@@ -2,6 +2,7 @@ import sys
 from PySide6.QtWidgets import QApplication, QMessageBox
 from ui.main_window import MainWindow
 import shutil
+import os  # 导入 os 模块
 
 def check_ffmpeg():
     if not shutil.which('ffmpeg'):
