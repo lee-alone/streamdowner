@@ -1,10 +1,11 @@
-from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
-                                    QLineEdit, QPushButton, QTabWidget, QLabel, 
+from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
+                                    QLineEdit, QPushButton, QTabWidget, QLabel,
                                     QProgressBar, QTableWidget, QTableWidgetItem,
                                     QFileDialog, QComboBox, QGroupBox, QCheckBox,
-                                    QMessageBox, QStatusBar)
+                                    QMessageBox, QStatusBar, QDialog)
 from PySide6.QtCore import Qt, QThread, Signal, QUrl
 from PySide6.QtGui import QAction, QClipboard, QPalette, QColor
+from PySide6.QtWidgets import QApplication
 import os
 from core.download_manager import DownloadManager
 from core.history_manager import HistoryManager
@@ -46,6 +47,7 @@ class MainWindow(QMainWindow):
         history_action = QAction("下载历史", self)
         history_action.triggered.connect(self.show_history)
         settings_action = QAction("设置", self)
+        settings_action.triggered.connect(self.show_advanced_options)
         file_menu.addActions([history_action, settings_action])
         
         # 主题菜单
@@ -328,3 +330,12 @@ class MainWindow(QMainWindow):
 
     def show_about(self):
         QMessageBox.information(self, "关于", "九中专用版，出错找老李修复")
+
+    def show_advanced_options(self):
+        dialog = QDialog(self)
+        dialog.setWindowTitle("高级选项")
+        layout = QVBoxLayout(dialog)
+        advanced_tab = self.create_advanced_tab()
+        layout.addWidget(advanced_tab)
+        dialog.setLayout(layout)
+        dialog.exec()
