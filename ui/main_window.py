@@ -2,7 +2,7 @@ from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
                                     QLineEdit, QPushButton, QTabWidget, QLabel,
                                     QProgressBar, QTableWidget, QTableWidgetItem,
                                     QFileDialog, QComboBox, QGroupBox, QCheckBox,
-                                    QMessageBox, QStatusBar, QDialog)
+                                    QMessageBox, QStatusBar, QDialog, QHeaderView)
 from PySide6.QtCore import Qt, QThread, Signal, QUrl
 from PySide6.QtGui import QAction, QClipboard, QPalette, QColor
 from PySide6.QtWidgets import QApplication
@@ -34,6 +34,12 @@ class MainWindow(QMainWindow):
         self.download_manager.download_error.connect(self.download_error)
         self.download_manager.queue_updated.connect(self.update_queue_status)
         self.active_downloads = {}
+
+        # 创建 ComboBox 对象
+        self.download_type = QComboBox()
+        self.quality_combo = QComboBox()
+        self.format_combo = QComboBox()
+
         self.setup_ui()
         self.setup_menubar()
         self.setup_statusbar()
@@ -111,19 +117,20 @@ class MainWindow(QMainWindow):
         # URL输入区域
         url_layout = QHBoxLayout()
         self.url_input = QLineEdit()
+        self.url_input.setFixedHeight(45)  # 设置高度
         self.url_input.setPlaceholderText("在此输入视频URL...")
         paste_button = QPushButton("粘贴")
-        paste_button.setStyleSheet("background-color: blue; color: white;")
+        paste_button.setStyleSheet("background-color: blue; color: white; height: 60px;")
         paste_button.clicked.connect(self.paste_url)
         url_layout.addWidget(self.url_input)
         url_layout.addWidget(paste_button)
         main_layout.addLayout(url_layout)
-        
-        # 选项卡区域
-        tabs = QTabWidget()
-        tabs.addTab(self.create_basic_tab(), "基本选项")
-        tabs.addTab(self.create_advanced_tab(), "高级选项")
-        main_layout.addWidget(tabs)
+
+        # 选项区域
+        options_layout = QHBoxLayout()
+        options_layout.addWidget(self.create_basic_tab())
+        options_layout.addWidget(self.create_advanced_tab())
+        main_layout.addLayout(options_layout)
         
         # 下载按钮
         download_button = QPushButton("开始下载")
@@ -134,6 +141,11 @@ class MainWindow(QMainWindow):
         # 下载任务列表
         self.tasks_table = QTableWidget(0, 4)
         self.tasks_table.setHorizontalHeaderLabels(["文件名", "进度", "速度", "状态"])
+        header = self.tasks_table.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.Stretch) # 文件名
+        header.setSectionResizeMode(1, QHeaderView.Stretch)   # 进度
+        header.setSectionResizeMode(2, QHeaderView.ResizeToContents) # 速度
+        header.setSectionResizeMode(3, QHeaderView.ResizeToContents) # 状态
         main_layout.addWidget(self.tasks_table)
         
     def create_basic_tab(self):
@@ -143,7 +155,6 @@ class MainWindow(QMainWindow):
         # 下载类型选择
         type_group = QGroupBox("下载类型")
         type_layout = QHBoxLayout()
-        self.download_type = QComboBox()
         self.download_type.addItems(["视频", "音频", "播放列表"])
         type_layout.addWidget(self.download_type)
         type_group.setLayout(type_layout)
@@ -153,9 +164,10 @@ class MainWindow(QMainWindow):
         path_group = QGroupBox("保存路径")
         path_layout = QHBoxLayout()
         self.path_input = QLineEdit()
+        self.path_input.setFixedHeight(45) # 设置高度
         self.path_input.setReadOnly(True)
         browse_button = QPushButton("浏览...")
-        browse_button.setStyleSheet("background-color: blue; color: white;")
+        browse_button.setStyleSheet("background-color: blue; color: white; height: 60px;")
         browse_button.clicked.connect(self.choose_save_path)
         path_layout.addWidget(self.path_input)
         path_layout.addWidget(browse_button)
@@ -171,7 +183,6 @@ class MainWindow(QMainWindow):
         # 视频质量选择
         quality_group = QGroupBox("视频质量")
         quality_layout = QVBoxLayout()
-        self.quality_combo = QComboBox()
         self.quality_combo.addItems(["最佳质量", "1080p", "720p", "480p", "360p"])
         quality_layout.addWidget(self.quality_combo)
         quality_group.setLayout(quality_layout)
@@ -180,7 +191,6 @@ class MainWindow(QMainWindow):
         # 格式选择
         format_group = QGroupBox("格式选择")
         format_layout = QVBoxLayout()
-        self.format_combo = QComboBox()
         self.format_combo.addItems(["mp4", "mkv", "webm", "mp3", "m4a", "flac"])
         format_layout.addWidget(self.format_combo)
         format_group.setLayout(format_layout)
@@ -230,7 +240,7 @@ class MainWindow(QMainWindow):
             'quality': self.quality_combo.currentText(),
             'format': self.format_combo.currentText(),
             'subtitle_enabled': self.subtitle_check.isChecked(),
-            'include_audio': self.include_audio_check.isChecked()  # 添加新选项
+            'include_audio': self.include_audio_check.isChecked()
         }
 
         # Add new row to tasks table
