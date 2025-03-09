@@ -113,6 +113,7 @@ class MainWindow(QMainWindow):
         self.url_input = QLineEdit()
         self.url_input.setPlaceholderText("在此输入视频URL...")
         paste_button = QPushButton("粘贴")
+        paste_button.setStyleSheet("background-color: blue; color: white;")
         paste_button.clicked.connect(self.paste_url)
         url_layout.addWidget(self.url_input)
         url_layout.addWidget(paste_button)
@@ -126,7 +127,7 @@ class MainWindow(QMainWindow):
         
         # 下载按钮
         download_button = QPushButton("开始下载")
-        download_button.setStyleSheet("QPushButton { padding: 10px; font-size: 16px; }")
+        download_button.setStyleSheet("QPushButton { padding: 10px; font-size: 16px; background-color: green; color: white; }")
         download_button.clicked.connect(self.start_download)
         main_layout.addWidget(download_button)
         
@@ -154,6 +155,7 @@ class MainWindow(QMainWindow):
         self.path_input = QLineEdit()
         self.path_input.setReadOnly(True)
         browse_button = QPushButton("浏览...")
+        browse_button.setStyleSheet("background-color: blue; color: white;")
         browse_button.clicked.connect(self.choose_save_path)
         path_layout.addWidget(self.path_input)
         path_layout.addWidget(browse_button)
