@@ -43,8 +43,9 @@ class HistoryDialog(QDialog):
         button_layout.addWidget(redownload_button)
         layout.addLayout(button_layout)
         
-    def load_history(self):
-        entries = self.history_manager.get_recent_entries()
+    def load_history(self, entries=None):
+        if entries is None:
+            entries = self.history_manager.get_recent_entries()
         self.table.setRowCount(len(entries))
         
         for row, entry in enumerate(entries):
@@ -65,7 +66,7 @@ class HistoryDialog(QDialog):
             entries = self.history_manager.get_recent_entries()
             
         self.table.setRowCount(len(entries))
-        self.load_history()
+        self.load_history(entries)
         
     def clear_history(self):
         self.history_manager.clear_history()

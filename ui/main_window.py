@@ -10,6 +10,7 @@ import os
 from core.download_manager import DownloadManager
 from core.history_manager import HistoryManager
 from .history_dialog import HistoryDialog
+from core.duplicate_checker import check_duplicate_download
 
 class DownloadThread(QThread):
     def __init__(self, manager, url, save_path, options):
@@ -25,7 +26,7 @@ class DownloadThread(QThread):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("老李没事锉一个下载器——九中内部使用版")
+        self.setWindowTitle("Alone-老李 九中内部使用")
         self.setMinimumSize(800, 600)
         self.download_manager = DownloadManager()
         self.history_manager = HistoryManager()
@@ -164,6 +165,7 @@ class MainWindow(QMainWindow):
         path_group = QGroupBox("保存路径")
         path_layout = QHBoxLayout()
         self.path_input = QLineEdit()
+        self.path_input.setPlaceholderText("默认保存到用户下载目录")
         self.path_input.setFixedHeight(45) # 设置高度
         self.path_input.setReadOnly(True)
         browse_button = QPushButton("浏览...")
@@ -232,7 +234,7 @@ class MainWindow(QMainWindow):
 
         save_path = self.path_input.text()
         if not save_path:
-            save_path = os.path.expanduser("~/Downloads")
+            save_path = os.path.expanduser("~\Downloads")
             self.path_input.setText(save_path)
 
         options = {
@@ -242,6 +244,20 @@ class MainWindow(QMainWindow):
             'subtitle_enabled': self.subtitle_check.isChecked(),
             'include_audio': self.include_audio_check.isChecked()
         }
+
+        from core.duplicate_checker import check_duplicate_download
+
+        # 获取文件名
+        filename = url  # 默认使用 URL 作为文件名，稍后会被更新
+        # 检查是否重复下载
+        duplicate_check_result = check_duplicate_download(url, save_path, filename, self.history_manager, self)
+        if duplicate_check_result is True:
+            return
+        elif duplicate_check_result is not False and duplicate_check_result[1] is None:
+            # 用户选择继续下载，但文件名未知，此时文件名是 url
+            filename = url
+            from core.download_handler import handle_existing_download
+            handle_existing_download(url, save_path, filename, self.history_manager)
 
         # Add new row to tasks table
         row = self.tasks_table.rowCount()
@@ -270,6 +286,8 @@ class MainWindow(QMainWindow):
             row = download['row']
             progress_bar = download['progress_bar']
             
+            filename = progress.filename
+
             self.tasks_table.setItem(row, 0, QTableWidgetItem(progress.filename))
             progress_bar.setValue(int(progress.percent))
             self.tasks_table.setItem(row, 2, QTableWidgetItem(progress.speed))
@@ -341,7 +359,7 @@ class MainWindow(QMainWindow):
         event.acceptProposedAction()
 
     def show_about(self):
-        QMessageBox.information(self, "关于", "九中专用版，出错找老李修复")
+        QMessageBox.information(self, "关于", "常见视频网站视频下载，备课加速神器\n\n作者：Alone-老李\n版本：1.0.0\n\n期待您的反馈！")
 
     def show_advanced_options(self):
         dialog = QDialog(self)

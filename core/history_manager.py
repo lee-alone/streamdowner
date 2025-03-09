@@ -13,8 +13,8 @@ class HistoryManager:
             if os.path.exists(self.history_file):
                 with open(self.history_file, 'r', encoding='utf-8') as f:
                     return json.load(f)
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Error loading history: {e}")
         return []
     
     def save_history(self):
